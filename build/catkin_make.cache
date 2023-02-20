@@ -1,0 +1,2 @@
+autonomous_vehicle_control:autonomous_vehicle_description:autonomous_vehicle_gazebo:realsense2_description:realsense_gazebo_plugin
+-DCATKIN_DEVEL_PREFIX=/home/dinis/ROS/autonomous_vehicle/devel -DCMAKE_INSTALL_PREFIX=/home/dinis/ROS/autonomous_vehicle/install -G Unix Makefiles

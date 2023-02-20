@@ -1,0 +1,8 @@
+prefix=/home/dinis/ROS/autonomous_vehicle/install
+
+Name: autonomous_vehicle_gazebo
+Description: Description of autonomous_vehicle_gazebo
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

@@ -1,0 +1,322 @@
+<?xml version="1.0"?>
+<robot name="vehicle" xmlns:xacro="http://ros.org/wiki/xacro">
+ 
+    <!--
+    
+    Graus de liberdade 35 -35
+    Velocidade maxima: 1,5 m/s
+    Aceleração maxima: 1,5 m/s^2
+
+    210 entre eixos
+
+    81 - 67 = 14 desde o eixo ate ao centro da roda
+
+    =>Left Wheel
+
+    LOG: 2     |  0.000001  -0.000000   0.000000 |
+    LOG: 2     | -0.000000   0.000001  -0.000000 |
+    LOG: 2     |  0.000000  -0.000000   0.000001 |
+
+    ________________Factor of 10________________ 
+
+    
+    LOG: 2     |  0.073454   0.000000  -0.000000 |
+    LOG: 2     |  0.000000   0.116212   0.000000 |
+    LOG: 2     | -0.000000   0.000000   0.073454 |
+
+    =>Right Wheel
+
+    LOG: 2     |  0.000001   0.000000  -0.000000 |
+    LOG: 2     |  0.000000   0.000001   0.000000 |
+    LOG: 2     | -0.000000   0.000000   0.000001 |
+
+    ________________Factor of 10________________ 
+
+    
+    LOG: 2     |  0.073454   0.000000  -0.000000 |
+    LOG: 2     |  0.000000   0.116212   0.000000 |
+    LOG: 2     | -0.000000   0.000000   0.073454 |
+
+    =>Base
+
+    LOG: 2     |  0.000002  -0.000000   0.000000 |
+    LOG: 2     | -0.000000   0.000004   0.000000 |
+    LOG: 2     |  0.000000   0.000000   0.000006 |
+
+    ________________Factor of 10________________ 
+   
+    LOG: 2     |  0.163866  -0.000150   0.000062 |
+    LOG: 2     | -0.000150   0.418963   0.000000 |
+    LOG: 2     |  0.000062   0.000000   0.582709 |
+
+
+!-->
+
+    <xacro:include filename="$(find realsense2_description)/urdf/_d435.urdf.xacro" />
+    <xacro:include filename="$(find autonomous_vehicle_description)/urdf/vehicle_model.gazebo" />
+
+    <xacro:property name="VehicleHeight" value="0" />
+    
+    <xacro:property name="PoleHeight" value="0.50" />
+    <xacro:property name="PoleX" value="0.21" />
+
+
+    <xacro:property name="Right" value="-1" />
+    <xacro:property name="Left" value="1" />
+
+    <xacro:property name="Back" value="1" />
+    <xacro:property name="Front" value="-1" />
+
+    <xacro:property name="DistWheelsRightLeft" value="0.300" />
+    <xacro:property name="DistWheelsFrontBack" value="0.370" />
+    <xacro:property name="AxleSize" value="0.205" />
+    <xacro:property name="AxleWheels" value="0.0475" />
+    
+
+    <xacro:property name="WheelMass" value="1" />
+    <xacro:property name="BaseMass" value="4" />
+
+
+    <link name="vehicle">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 ${VehicleHeight}"/>
+            <geometry>
+                <box size="0.01 0.01 0.01"/>
+            </geometry>
+        </visual>
+    </link>
+
+
+
+    <link name="base_link">
+        <visual>
+            <origin xyz="0 0 ${VehicleHeight}"/>
+            <geometry>
+                <mesh filename="package://autonomous_vehicle_description/meshes/Base.stl"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 ${VehicleHeight}"/>
+            <geometry>
+                <box size="0.53 0.10 0.01"/>
+            </geometry>
+        </collision>
+
+        <inertial>
+            <mass value="${BaseMass}" />
+            <inertia ixx="0.163866" ixy="-0.000150" ixz="0.000062" iyy="0.418963" iyz="0.000000" izz="0.582709" />
+        </inertial>          
+
+    </link>  
+
+
+    <link name="camera_pole_link">
+        <visual>
+            <geometry>
+                <box size="0.01 0.01 ${PoleHeight}"/>
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.01 0.01 ${PoleHeight}"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.01" />
+            <inertia ixx="0.001" ixy="0.000000" ixz="0.000000" iyy="0.001" iyz="0.000000" izz="0.001" />
+        </inertial> 
+    </link>
+
+    <joint name="vehicle_camera_pole_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="camera_pole_link"/>
+        <origin xyz="${PoleX} 0 ${VehicleHeight + PoleHeight/2}"/>
+    </joint>
+
+    <xacro:sensor_d435 name="camera" topics_ns="camera" parent="base_link" publish_pointcloud="true">
+        <origin xyz="${PoleX} 0 ${PoleHeight + 0.01/2 + VehicleHeight}" rpy="0 ${pi/9} ${pi}" />
+    </xacro:sensor_d435>  
+
+    <!--joint name="vahicle_camera_pole_joint" type="fixed">
+        <parent link="camera_pole_link"/>
+        <child link="camera_link"/>
+        <origin xyz="0 0 ${PoleHeight/2 + 0.01/2}"/>
+    </joint-->
+
+    <joint name="vehicle_dummy_joint" type="fixed">
+        <parent link="vehicle"/>
+        <child link="base_link"/>
+        <origin xyz="0 0 0"/>
+    </joint>
+
+    <link name="left_axle">
+        <visual>
+            <geometry>
+                <box size="0.01 0.01 0.01"/>
+            </geometry>
+        </visual>
+        <contact>
+            <geometry>
+                <box size="0.01 0.01 0.01"/>
+            </geometry>
+        </contact>
+        <inertial>
+            <mass value="0.01" />
+            <inertia ixx="0.001" ixy="0.000000" ixz="0.000000" iyy="0.001" iyz="0.000000" izz="0.001" />
+        </inertial>
+    </link>
+
+    <joint name="axle_left_rotate_joint" type="revolute">
+        <axis xyz="0 0 1"/>
+        <parent link="vehicle"/>
+        <child link="left_axle"/>
+        <origin xyz="${Front * DistWheelsFrontBack/2} ${Left*AxleSize/2} ${VehicleHeight}"/>
+        <limit effort="1000.0" lower="-0.610865" upper="0.610865" velocity="0.5"/>
+    </joint>
+
+    <transmission name="axle_left_rotate_trans">
+        <type>transmission_interface/SimpleTransmission</type>
+        <actuator name="$axle_left_rotate_motor">
+            <mechanicalReduction>1</mechanicalReduction>
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </actuator>
+        <joint name="axle_left_rotate_joint">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+    </transmission>
+
+    <link name="right_axle">
+        <visual>
+            <geometry>
+                <box size="0.01 0.01 0.01"/>
+            </geometry>
+        </visual>
+        <contact>
+            <geometry>
+                <box size="0.01 0.01 0.01"/>
+            </geometry>
+        </contact>
+        <inertial>
+            <mass value="0.01" />
+            <inertia ixx="0.001" ixy="0.000000" ixz="0.000000" iyy="0.001" iyz="0.000000" izz="0.001" />
+        </inertial>
+    </link>
+
+    <joint name="axle_right_rotate_joint" type="revolute">
+        <axis xyz="0 0 1"/>
+        <parent link="vehicle"/>
+        <child link="right_axle"/>
+        <origin xyz="${Front * DistWheelsFrontBack/2} ${Right*AxleSize/2} ${VehicleHeight}"/>
+        <limit effort="1000.0" lower="-0.610865" upper="0.610865" velocity="0.5"/>
+    </joint>
+
+    <transmission name="axle_right_rotate_trans">
+        <type>transmission_interface/SimpleTransmission</type>
+        <actuator name="$axle_right_rotate_motor">
+          <mechanicalReduction>1</mechanicalReduction>
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </actuator>
+        <joint name="axle_right_rotate_joint">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+    </transmission>
+
+
+
+
+    <xacro:macro name="BackWheelMacro" params="Sufix RighLeft">
+        
+        <link name="${Sufix}_Back">
+
+            <visual>
+                <!--origin xyz="0 0 ${VehicleHeight}"/-->
+                <geometry>
+                    <mesh filename="package://autonomous_vehicle_description/meshes/${Sufix}.stl"/>
+                </geometry>
+            </visual>
+            <collision>
+                <origin rpy="${pi/2} 0 0"/>
+                <geometry>
+                    <cylinder radius="0.0620" length="0.0670"/>
+                </geometry>
+            </collision>
+
+            <inertial>
+                <mass value="${WheelMass}" />
+                <inertia ixx="0.073454" ixy="0.000000" ixz="-0.000000" iyy="0.116212" iyz="0.000000" izz="0.073454" />
+            </inertial>          
+
+        </link>
+
+        <joint name="${Sufix}_joint" type="continuous">
+            <axis xyz="0 1 0"/>
+            <parent link="base_link"/>
+            <child link="${Sufix}_Back"/>
+            <origin xyz="${Back * DistWheelsFrontBack/2} ${RighLeft*DistWheelsRightLeft/2} ${VehicleHeight}"/>
+        </joint>
+
+        <transmission name="${Sufix}_motor_trans">
+            <type>transmission_interface/SimpleTransmission</type>
+            <actuator name="${Sufix}_motor_motor">
+              <mechanicalReduction>1</mechanicalReduction>
+              <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+            </actuator>
+            <joint name="${Sufix}_joint">
+              <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+            </joint>
+        </transmission>
+    
+    </xacro:macro>
+
+    <xacro:macro name="FrontWheelMacro" params="Sufix RighLeft">
+        
+        <link name="${Sufix}_Front">
+
+            <visual>
+                <!--origin xyz="0 0 ${VehicleHeight}"/-->
+                <geometry>
+                    <mesh filename="package://autonomous_vehicle_description/meshes/${Sufix}.stl"/>
+                </geometry>
+            </visual>
+            <collision>
+                <origin rpy="${pi/2} 0 0"/>
+                <geometry>
+                    <cylinder radius="0.0620" length="0.0670"/>
+                </geometry>
+            </collision>
+
+            <inertial>
+                <mass value="${WheelMass}" />
+                <inertia ixx="0.073454" ixy="0.000000" ixz="-0.000000" iyy="0.116212" iyz="0.000000" izz="0.073454" />
+            </inertial>          
+
+        </link>
+
+
+    </xacro:macro>
+
+    <xacro:FrontWheelMacro Sufix="RightWheel"  RighLeft="${Right}"/>
+
+    <xacro:FrontWheelMacro Sufix="LeftWheel"  RighLeft="${Left}"/>
+
+    <xacro:BackWheelMacro Sufix="RightWheel"  RighLeft="${Right}"/>
+
+    <xacro:BackWheelMacro Sufix="LeftWheel"  RighLeft="${Left}"/>
+
+    <joint name="wheel_right_rotate_joint" type="continuous">
+        <axis xyz="0 1 0"/>
+        <parent link="right_axle"/>
+        <child link="RightWheel_Front"/>
+        <origin xyz="0 ${Right*AxleWheels} 0"/>
+    </joint>
+
+    <joint name="wheel_left_rotate_joint" type="continuous">
+        <axis xyz="0 1 0"/>
+        <parent link="left_axle"/>
+        <child link="LeftWheel_Front"/>
+        <origin xyz="0 ${Left*AxleWheels} 0"/>
+    </joint>
+
+
+
+</robot>

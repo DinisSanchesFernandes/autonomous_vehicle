@@ -1,0 +1,8 @@
+prefix=/home/dinis/ROS/autonomous_vehicle/install
+
+Name: autonomous_vehicle_control
+Description: Description of autonomous_vehicle_control
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<robot name="vehicle" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <link name="base_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <mesh filename="package://autonomous_vehicle_description/meshes/Base.stl"/>
+            </geometry>
+        </visual>      
+    </link>   
+
+    <link name="Wheel">
+        <visual>
+            <geometry>
+                <mesh filename="package://autonomous_vehicle_description/meshes/LeftWheel.stl"/>
+            </geometry>
+        </visual>    
+    </link>
+
+    <joint name="base_wheel_joint" type="continuous">
+        <axis xyz="0 1 0"/>
+        <parent link="base_link"/>
+        <child link="Wheel"/>
+        <origin xyz="0.185 0.15 0"/>
+    </joint>
+
+</robot>

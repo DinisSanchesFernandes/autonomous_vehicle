@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot>
+  
+    <!-- ros_control plugin -->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/autonomous_vehicle</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="base_link">
+    <material>Gazebo/Red</material>
+  </gazebo>
+
+  <gazebo reference="RightWheel_Back">
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
+  <gazebo reference="RightWheel_Front">
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
+  <gazebo reference="LeftWheel_Front">
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
+  <gazebo reference="LeftWheel_Back">
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
+  <gazebo reference="camera_pole_link">
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
+</robot>
